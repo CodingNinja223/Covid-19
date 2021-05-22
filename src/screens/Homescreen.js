@@ -1,6 +1,6 @@
 import React,{Component} from 'react';
-import {View,Text,Image,StyleSheet,TouchableOpacity} from 'react-native'
-import { Entypo,MaterialIcons,FontAwesome } from '@expo/vector-icons'; 
+import {View,Text,Image,StyleSheet,TouchableOpacity,ImageBackground} from 'react-native'
+import { Entypo,MaterialIcons,FontAwesome,Ionicons  } from '@expo/vector-icons'; 
 class HomeScreen extends Component{
     constructor(){
         super();
@@ -11,9 +11,11 @@ class HomeScreen extends Component{
 
     render(){
         return(
-           <View style={styles.imageContainer}>
+           <ImageBackground  source={require('../image/digital-background.jpg')}style={styles.imageContainer}>
                <View style={{margin:20}}>
-                   <Image source={require('../image/wiggle.png')}/>
+                   <View style={styles.imageContainers}>
+                   <Image source={require('../image/wiggle.png')} />
+                   </View>
                    <View style={styles.Contain}>
                        <Text style={styles.text}>COVID-19 SCREENING</Text>
                    </View>
@@ -52,10 +54,20 @@ class HomeScreen extends Component{
                                   <Text style={styles.textIconFontSize}>Update Profile</Text>
                                </View>
                            </TouchableOpacity>
-                       
+                           <TouchableOpacity style={styles.flexContainer} 
+                           
+                           onPress={()=> this.props.navigation.navigate('Scan Face')}
+                           >
+                               <View style={styles.iconspacing}>
+                               <Ionicons name="camera" size={35} color="red" />
+                               </View>
+                               <View style={styles.iconspacing}>
+                                  <Text style={styles.textIconFontSize}>Scan Face</Text>
+                               </View>
+                           </TouchableOpacity>
                    </View>
                    </View>
-           </View>
+           </ImageBackground>
         )
     }
 } 
@@ -65,7 +77,6 @@ export default HomeScreen;
 
 const styles=StyleSheet.create({
 imageContainer:{
-    backgroundColor:'white',
     flex:1
 },
 Contain:{
@@ -79,10 +90,10 @@ text:{
 },
 flexContainer:{
     flexDirection:'row',
-    padding:40,
-    borderColor:"#eee",
+    padding:20,
+    borderColor:"#c2c2c2",
     borderWidth:1,
-    borderRadius:20,
+    borderRadius:40,
     margin:10
     
 },
@@ -94,6 +105,10 @@ margin:10
 },
 textIconFontSize:{
     fontSize:18
+},
+imageContainers:{
+    alignItems:'center',
+    justifyContent:'center'
 }
 })
 

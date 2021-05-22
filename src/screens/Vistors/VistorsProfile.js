@@ -1,8 +1,8 @@
 import React,{Component} from 'react';
 import {FlatList,TouchableOpacity,View,StyleSheet,Text,ActivityIndicator} from 'react-native';
 import {db} from '../../util/firebase';
-
-class VisitorsProfile extends Component{
+import { Avatar } from 'react-native-elements';
+class VistorProfile extends Component{
     constructor(){
         super()
         this.state={
@@ -15,8 +15,10 @@ class VisitorsProfile extends Component{
         const snapshot = await db.collection('Visitors').get();
         snapshot.forEach((doc) => {
           console.log(doc.id, '=>', doc.data());
+          const data=[]
+          data.push({ ...doc.data(),id: doc.id })
           this.setState({
-              users:[{Data:doc.data(),id:doc.id}],
+              users: [...data],
               isloading:false
           })
         });
@@ -35,16 +37,27 @@ class VisitorsProfile extends Component{
           data={this.state.users}
           keyExtractor={(item)=>item.id}
           renderItem={({item})=>(
-             <TouchableOpacity key={item.id}  style={styles.flexContainer}
+             <TouchableOpacity key={item.id} style={styles.flexContainer}
               onPress={()=> this.props.navigation.navigate('Vistor Detail',{
                   Data:this.state.users
               })}
-             
              >
              <View style={styles.align}>
-             <Text>{item.Data.name}</Text>
-              <Text>{'  '}</Text>
-             <Text>{item.Data.lastName}</Text>
+             <Avatar
+                rounded
+                size="large"
+                source={{
+                    uri:
+                    'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
+                }}
+                />
+             <Text>{'  '}</Text>
+             <Text>{'  '}</Text>
+             <View style={styles.nameContainer}>
+                <Text>{item.name}</Text>
+                <Text>{'  '}</Text>
+                <Text>{item.lastName}</Text>
+             </View>
              </View>
             </TouchableOpacity>
           )}
@@ -53,7 +66,7 @@ class VisitorsProfile extends Component{
     }
 }
 
-export default VisitorsProfile
+export default VistorProfile
 
 const styles=StyleSheet.create({
     header:{
@@ -83,5 +96,10 @@ const styles=StyleSheet.create({
         justifyContent:'center',
         alignItems:'center',
         backgroundColor:'white'
+    },
+    nameContainer:{
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center'
     }
 })

@@ -1,7 +1,7 @@
 import React,{Component} from 'react';
 import {FlatList,TouchableOpacity,View,StyleSheet,Text,ActivityIndicator} from 'react-native';
 import {db} from '../../util/firebase';
-
+import { Avatar } from 'react-native-elements';
 class EmployeeProfile extends Component{
     constructor(){
         super()
@@ -15,16 +15,16 @@ class EmployeeProfile extends Component{
         const snapshot = await db.collection('Employee').get();
         snapshot.forEach((doc) => {
           console.log(doc.id, '=>', doc.data());
-          const data=[];
+          const data=[]
+          data.push({ ...doc.data(),id: doc.id })
           this.setState({
-              users:[{Data:doc.data(),id:doc.id}],
+              users:[...data],
               isloading:false
           })
         });
     }
 
     render(){
-        console.log(this.state.users)
         if(this.state.isloading){
             return(
                 <View style={styles.flexContain}>
@@ -43,9 +43,21 @@ class EmployeeProfile extends Component{
               })}
              >
              <View style={styles.align}>
-             <Text>{item.Data.name}</Text>
-              <Text>{'  '}</Text>
-             <Text>{item.Data.lastName}</Text>
+             <Avatar
+                rounded
+                size="large"
+                source={{
+                    uri:
+                    'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+                }}
+                />
+             <Text>{'  '}</Text>
+             <Text>{'  '}</Text>
+             <View style={styles.nameContainer}>
+                <Text>{item.name}</Text>
+                <Text>{'  '}</Text>
+                <Text>{item.lastName}</Text>
+             </View>
              </View>
             </TouchableOpacity>
           )}
@@ -84,5 +96,10 @@ const styles=StyleSheet.create({
         justifyContent:'center',
         alignItems:'center',
         backgroundColor:'white'
+    },
+    nameContainer:{
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center'
     }
 })
