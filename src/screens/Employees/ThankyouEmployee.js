@@ -15,7 +15,7 @@ class EmployeeThanks extends Component{
                 </View>
                 <View style={styles.content}>
                    <TouchableOpacity style={styles.button}
-                   onPress={this.returnHome}
+                   onPress={this.returnHomeHandler}
                    >
                        <Text style={styles.textButtonColor}>Continue</Text>
                    </TouchableOpacity>

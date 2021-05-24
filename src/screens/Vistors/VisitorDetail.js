@@ -10,7 +10,8 @@ class VisitorDetail extends Component{
         super();
         this.state={
               visible:false,
-              updatedTemperature:''
+              updatedTemperature:'',
+              name:""
         }
     }
 
@@ -21,43 +22,36 @@ class VisitorDetail extends Component{
        })
      }
 
-     updateTemperateHandler=()=>{
+     updateTemperateHandler= async ()=>{
         const {Data}=this.props.route.params;
+        const{updatedTemperature}=this.state
         const id=Data.map(item=>{
             return item.id
         })
-        const {updatedTemperature}=this.state;
-        db.collection('Visitors').doc(`${id}`).update({
-            temperature: updatedTemperature
+        await db.collection("Temperature")
+        .add({
+          date:new Date().toLocaleString(),
+          temperature:updatedTemperature
+      })
+          this.setState({
+            updatedTemperature:'',
+            name:""
           })
-          Alert.alert("Temperature Updated")
-        console.log(id)
-          
+          Alert.alert(`Thank you ${this.state.name} your Temperature has been updated`)
+
     }
 
     render(){
         const {Data}=this.props.route.params;
+        console.log(Data)
         return(
           <View >
               {
                   Data.map((item)=>(
-                      <View key={item.id}>
+                      <View key={item.Data.id}>
                          <View style={styles.header}>
-                              <Avatar
-                               size="xlarge"
-                                rounded
-                                source={{
-                                  uri:
-                                    'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
-                                }}
-                              />
                          </View>
-                         {/* <LineChart
-                          data={data}
-                          width={screenWidth}
-                          height={220}
-                          chartConfig={this.state.chartConfig}
-                          /> */}
+
                          <View style={styles.flexCard}>
                          <Fontisto name="date" size={24} color="black" />
                          <Text>{'  '}</Text>
@@ -119,15 +113,26 @@ class VisitorDetail extends Component{
                                     <Text>Update Temperature</Text>
                                 </TouchableOpacity>
                          </View>
-                         <Overlay  isVisible={this.state.visible} onBackdropPress={this.toggleOverlay}>
-                          <Text>Update Temperature</Text>
-                          <View>
+                         <Overlay   isVisible={this.state.visible} onBackdropPress={this.toggleOverlay}>
+                          <Text style={{textAlign:'center'}}>Update Temperature</Text>
+                          <View style={{height:400,width:400,borderRadius:20}}>
                             <TextInput
+                            keyboardType="number-pad"
+                            style={styles.border}
                               onChangeText={(e)=>this.setState({updatedTemperature:e.trim()})}
                               placeholder="Please enter your temperature"
                               value={this.state.updatedTemperature}
                             />
+                            <TextInput
+                              onChangeText={(e)=>this.setState({name:e.trim()})}
+                              placeholder="Please enter your Name"
+                              value={this.state.name}
+                              style={styles.border}
+                            />
+                            <View style={{marginTop:200}}>
                             <Button title="Update"  onPress={this.updateTemperateHandler}   color="#FF0000"/>
+
+                            </View>
                           </View>
                         </Overlay>
                       </View>
@@ -171,5 +176,13 @@ const styles=StyleSheet.create({
     },
     overlay:{
       height:500
+    },overlayHeight:{
+      height:400,
+      width:500
+    },
+    border:{
+      borderBottomWidth:1,
+      borderColor:'black',
+      marginVertical:25
     }
 })

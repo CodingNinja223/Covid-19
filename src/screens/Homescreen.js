@@ -1,6 +1,7 @@
 import React,{Component} from 'react';
-import {View,Text,Image,StyleSheet,TouchableOpacity,ImageBackground} from 'react-native'
-import { Entypo,MaterialIcons,FontAwesome,Ionicons  } from '@expo/vector-icons'; 
+import {View,Text,StyleSheet,TouchableOpacity,ImageBackground,Image} from 'react-native'
+import { Entypo,MaterialIcons,FontAwesome,Ionicons, AntDesign  } from '@expo/vector-icons'; 
+import { LinearGradient } from 'expo-linear-gradient';
 class HomeScreen extends Component{
     constructor(){
         super();
@@ -13,57 +14,58 @@ class HomeScreen extends Component{
         return(
            <ImageBackground  source={require('../image/digital-background.jpg')}style={styles.imageContainer}>
                <View style={{margin:20}}>
-                   <View style={styles.imageContainers}>
-                   <Image source={require('../image/wiggle.png')} />
+                   <View style={styles.imageContainers} >
+                   <Image source={require('../image/wiggle.png')} resizeMode="center"  />
                    </View>
-                   <View style={styles.Contain}>
-                       <Text style={styles.text}>COVID-19 SCREENING</Text>
+                   <View style={styles.justifyFlex}>
+                        <LinearGradient
+                            colors={['#808080', '#9e9e9e', '#bdbebd','#dedede','#ffffff']}
+                            style={styles.Contain}>
+                            <Text style={styles.text}>COVID SCREENING</Text>
+                        </LinearGradient>
                    </View>
-                   <View>
-                       <TouchableOpacity style={styles.flexContainer}                     
+                   <View style={{justifyContent:'center',alignItems:'center'}}>
+                       <TouchableOpacity                     
                         onPress={()=>this.props.navigation.navigate('COVID-19 Monitor Q1 V')}
                        >
-                           <View style={styles.iconspacing}>
-                              <Entypo name="location-pin" size={35} color="red" />
-                           </View>
-                            <View style={styles.iconspacing}>
+                           <Entypo name="location" size={35} color="black" style={styles.icon1}/>
+                            <Image source={require('../image/bar.png')}  resizeMode="center" style={{height:100}}/>
+                            <View style={styles.iconspacing1}>
                                <Text style={styles.textIconFontSize}>Visitor</Text>
                             </View>
+                       
                        </TouchableOpacity>
                        
-                           <TouchableOpacity style={styles.flexContainer} 
-                           
+                           <TouchableOpacity
                            onPress={()=> this.props.navigation.navigate('COVID-19 Monitor Q1 E')}
                            >
-                               <View style={styles.iconspacing}>
-                                  <MaterialIcons name="work" size={35} color="red" />
-                               </View>
-                               <View style={styles.iconspacing}>
+                               <FontAwesome name="users" size={35} color="black" style={styles.icon2} />
+                               <Image source={require('../image/bar.png')}  resizeMode="center" style={{height:100}}/>
+                               <View style={styles.iconspacing2}>
                                   <Text style={styles.textIconFontSize}>Staff</Text>
                                </View>
+                               
                            </TouchableOpacity>
 
-                           <TouchableOpacity style={styles.flexContainer} 
-                           
+                           <TouchableOpacity 
                            onPress={()=> this.props.navigation.navigate('Profiles')}
                            >
-                               <View style={styles.iconspacing}>
-                               <FontAwesome name="user" size={35} color="red" />
-                               </View>
-                               <View style={styles.iconspacing}>
+                               <AntDesign name="user" size={35} color="black" style={styles.icon3} />
+                                <Image source={require('../image/bar.png')}  resizeMode="center" style={{height:100}}/>
+                               <View style={styles.iconspacing3}>
                                   <Text style={styles.textIconFontSize}>Update Profile</Text>
                                </View>
+                              
                            </TouchableOpacity>
-                           <TouchableOpacity style={styles.flexContainer} 
-                           
+                           <TouchableOpacity  
                            onPress={()=> this.props.navigation.navigate('Scan Face')}
                            >
-                               <View style={styles.iconspacing}>
-                               <Ionicons name="camera" size={35} color="red" />
-                               </View>
-                               <View style={styles.iconspacing}>
+                               <MaterialIcons name="qr-code-scanner" size={35} color="black" style={styles.icon4}  />
+                             <Image source={require('../image/bar.png')}  resizeMode="center" style={{height:100}}/>
+                               <View style={styles.iconspacing4}>
                                   <Text style={styles.textIconFontSize}>Scan Face</Text>
                                </View>
+                               
                            </TouchableOpacity>
                    </View>
                    </View>
@@ -82,29 +84,81 @@ imageContainer:{
 Contain:{
     marginVertical:80,
     justifyContent:'center',
-    alignItems:'center'
+    alignItems:'center',
+    backgroundColor:'transparent',
+    borderRadius:45,
+    padding:20,
+    width:400
+},
+justifyFlex:{
+ justifyContent:'center',
+ alignItems:'center'
 },
 text:{
-    fontSize:23,
-    fontWeight:"700"
+    fontSize:28,
+    fontWeight:"bold"
 },
 flexContainer:{
     flexDirection:'row',
     padding:20,
-    borderColor:"#c2c2c2",
-    borderWidth:1,
     borderRadius:40,
-    margin:10
+    margin:10,
+    width:500
     
 },
 imageMargin:{
 margin:10
 },
-iconspacing:{
-margin:10
+icon1:{
+    position:'absolute',
+    left:230,
+    top:30,
+    zIndex:2
+},
+icon2:{
+    position:'absolute',
+    left:230,
+    top:40,
+    zIndex:2
+},
+icon3:{
+    position:'absolute',
+    left:230,
+    top:35,
+    zIndex:2
+},
+icon4:{
+    position:'absolute',
+    left:230,
+    top:30,
+    zIndex:2
+},
+iconspacing1:{
+margin:10,
+position:'absolute',
+left:280,
+top:20
+},
+iconspacing2:{
+    margin:10,
+    position:'absolute',
+    left:280,
+    top:20
+},
+iconspacing3:{
+    margin:10,
+    position:'absolute',
+    left:280,
+top:20
+},
+iconspacing4:{
+    margin:10,
+    position:'absolute',
+    left:280,
+top:20
 },
 textIconFontSize:{
-    fontSize:18
+    fontSize:25
 },
 imageContainers:{
     alignItems:'center',

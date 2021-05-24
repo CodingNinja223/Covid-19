@@ -1,27 +1,38 @@
 import React,{Component} from 'react';
-import {FlatList,TouchableOpacity,View,StyleSheet,Text,ActivityIndicator} from 'react-native';
+import {FlatList,TouchableOpacity,View,StyleSheet,Text,ActivityIndicator,TextInput} from 'react-native';
 import {db} from '../../util/firebase';
-import { Avatar } from 'react-native-elements';
 class VistorProfile extends Component{
     constructor(){
         super()
         this.state={
            users:[],
-           isloading:true
+           filteredData:[],
+           isloading:true,
+           search:''
         }
     }
 
     async componentDidMount(){
         const snapshot = await db.collection('Visitors').get();
+        const data=[]
         snapshot.forEach((doc) => {
           console.log(doc.id, '=>', doc.data());
-          const data=[]
-          data.push({ ...doc.data(),id: doc.id })
+          data.push({ Data:doc.data(),id: doc.id })
           this.setState({
               users: [...data],
               isloading:false
           })
         });
+    }
+
+    search=(searchText)=>{
+        this.setState({search:searchText})
+
+        let filteredData = this.state.users.filter((item)=> {
+            return item.Data.name.toLowerCase().includes(searchText);
+          });
+        
+          this.setState({filteredData: filteredData});
     }
 
     render(){
@@ -33,35 +44,40 @@ class VistorProfile extends Component{
             )
         }
         return(
-          <FlatList
-          data={this.state.users}
-          keyExtractor={(item)=>item.id}
-          renderItem={({item})=>(
-             <TouchableOpacity key={item.id} style={styles.flexContainer}
-              onPress={()=> this.props.navigation.navigate('Vistor Detail',{
-                  Data:this.state.users
-              })}
-             >
-             <View style={styles.align}>
-             <Avatar
-                rounded
-                size="large"
-                source={{
-                    uri:
-                    'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
-                }}
+            <View>
+                <View style={{justifyContent:'center',alignItems:'center',padding:20}}>
+                    <TextInput
+                      onChangeText={this.search}
+                      placeholder="Search User"
+                      autoCorrect={false}
+                      autoCapitalize='none'
+                      value={this.state.search}
+                      style={{backgroundColor:'white',width:450,padding:20,borderRadius:35}}
+                    />
+                </View>
+                <FlatList
+                data={this.state.filteredData && this.state.filteredData.length > 0 ? this.state.filteredData :this.state.users}
+                keyExtractor={(item)=>item.id}
+                renderItem={({item})=>(
+                    <TouchableOpacity key={item.id} style={styles.flexContainer}
+                     onPress={()=> this.props.navigation.navigate('Vistor Detail',{
+                        Data:[item]
+                    })}
+                    >
+                    <View style={styles.align}>
+                    <Text>{'  '}</Text>
+                    <Text>{'  '}</Text>
+                    <View style={styles.nameContainer}>
+                        <Text>{item.Data.name}</Text>
+                        <Text>{'  '}</Text>
+                        <Text>{item.Data.lastName}</Text>
+                    </View>
+                    </View>
+                    </TouchableOpacity>
+                
+                )}
                 />
-             <Text>{'  '}</Text>
-             <Text>{'  '}</Text>
-             <View style={styles.nameContainer}>
-                <Text>{item.name}</Text>
-                <Text>{'  '}</Text>
-                <Text>{item.lastName}</Text>
-             </View>
-             </View>
-            </TouchableOpacity>
-          )}
-         />
+          </View>
         )
     }
 }

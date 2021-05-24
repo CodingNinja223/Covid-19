@@ -1,6 +1,5 @@
 import React,{Component} from 'react';
-import {View,Text,Dimensions,StyleSheet,TouchableOpacity,TextInput,Alert} from 'react-native';
-import { Avatar } from 'react-native-elements';
+import {View,Text,StyleSheet,TouchableOpacity,TextInput,Alert} from 'react-native';
 import { Fontisto,FontAwesome5,MaterialCommunityIcons,Entypo,EvilIcons, AntDesign } from '@expo/vector-icons'; 
 import {db} from '../../util/firebase'
 import { Button, Overlay } from 'react-native-elements';
@@ -10,7 +9,8 @@ class EmployeeDetail extends Component{
         super();
         this.state={
               visible:false,
-              updatedTemperature:''
+              updatedTemperature:'',
+              name:''
         }
     }
 
@@ -21,18 +21,20 @@ class EmployeeDetail extends Component{
        })
      }
 
-     updateTemperateHandler=()=>{
-      const {Data}=this.props.route.params;
-      const id=Data.map(item=>{
-        return item.id
-    })
-      const {updatedTemperature}=this.state;
-      db.collection('Employee').doc(`${id}`).update({
-        date:new Date().toLocaleString(),
-        temperature:updatedTemperature
-      })
-      Alert.alert("Temperature Updated")
-      console.log(id)
+     updateTemperateHandler= async()=>{
+        const {Data}=this.props.route.params;
+        const id=Data.map(item=>{
+          return item.id
+        })
+
+        const {updatedTemperature}=this.state;
+        await db.collection("Temperature")
+          .add({
+            date:new Date().toLocaleString(),
+            temperature:updatedTemperature
+        })
+
+        Alert.alert(`Thank you ${this.state.name} your Temperature has been`)
      }
 
     render(){
@@ -41,23 +43,11 @@ class EmployeeDetail extends Component{
           <View >
               {
                   Data.map((item)=>(
-                      <View key={item.id}>
+                      <View key={item.Data.id}>
                          <View style={styles.header}>
-                              <Avatar
-                               size="xlarge"
-                                rounded
-                                source={{
-                                  uri:
-                                    'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
-                                }}
-                              />
+                            
                          </View>
-                         {/* <LineChart
-                          data={data}
-                          width={screenWidth}
-                          height={220}
-                          chartConfig={this.state.chartConfig}
-                          /> */}
+                         
                          <View style={styles.flexCard}>
                          <Fontisto name="date" size={24} color="black" />
                          <Text>{'  '}</Text>
@@ -120,12 +110,20 @@ class EmployeeDetail extends Component{
                                 </TouchableOpacity>
                          </View>
                          <Overlay  isVisible={this.state.visible} onBackdropPress={this.toggleOverlay}>
-                          <Text>Update Temperature</Text>
-                          <View>
+                          <Text style={{textAlign:'center'}}>Update Temperature</Text>
+                          <View style={{height:400,width:400,borderRadius:20}}>
                             <TextInput
+                            keyboardType="number-pad"
                                onChangeText={(e)=>this.setState({updatedTemperature:e.trim()})}
+                               style={styles.border}
                                placeholder="Please enter your temperature"
                                value={this.state.updatedTemperature}
+                            />
+                             <TextInput
+                               onChangeText={(e)=>this.setState({name:e})}
+                               style={styles.border}
+                               placeholder="Please enter your Name"
+                               value={this.state.name}
                             />
                             <Button title="Update" onPress={this.updateTemperateHandler}  color="#FF0000"/>
                           </View>
@@ -171,5 +169,13 @@ const styles=StyleSheet.create({
     },
     overlay:{
       height:500
+    },overlayHeight:{
+      height:400,
+      width:500
+    },
+    border:{
+      borderBottomWidth:1,
+      borderColor:'black',
+      marginVertical:25
     }
 })

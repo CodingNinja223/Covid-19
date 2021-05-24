@@ -8,7 +8,6 @@ class Profile extends Component{
     
 
     render(){
-       
         return(
             <Tab.Navigator>
                   <Tab.Screen name="Staff" component={EmployeeProfile}/>

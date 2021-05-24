@@ -1,6 +1,7 @@
 import React, {Component } from 'react';
 import { Text, View,StyleSheet,TouchableOpacity } from 'react-native';
 import { Camera } from 'expo-camera';
+import {db} from '../util/firebase'
 import * as FaceDetector from 'expo-face-detector'
 import { Entypo } from '@expo/vector-icons';
 
@@ -9,24 +10,67 @@ constructor(){
   super()
   this.state={
     hasPermission:null,
-    type:Camera.Constants.Type.back
+    type:Camera.Constants.Type.back,
+    image:null,
+    isPreview:false,
+    isCameraReady:false,
+    faces:[],
+    Vistors:[],
+    Employees:[]
   }
 }
+
+
+faceDetected=({faces})=>{
+  this.setState({
+    faces:faces
+  })
+}
+
+ onCameraReady=()=>{
+   this.setState({
+     isCameraReady:true
+   })
+ }
 
 async componentDidMount(){
   const { status } = await Camera.requestPermissionsAsync();
   this.setState({
       hasPermission:status === 'granted'
   })
+
+  const snapshot = await db.collection('Visitors').get();
+        snapshot.forEach((doc) => {
+          console.log(doc.id, '=>', doc.data());
+          const data=[]
+          data.push({ Data:doc.data(),id: doc.id })
+          this.setState({
+              Vistors: [...data],
+              isloading:false
+          })
+      });
 }
 
 takePicture = async () => {
+  const {faces,Vistors}=this.state;
   if (this.camera) {
-    const options = {quality: 1, base64: true};
+    const options = {quality: 1,base64: true };
     const data = await this.camera.takePictureAsync(options);
-    console.log(data);
-}
-  console.log("Sam World")
+    const source=data.base64;
+
+     const visitors=Vistors.map(item=>{
+        return item.Data.rollAngle
+     })
+    const faceId=faces.map(item=>{
+      return item.rollAngle
+   })
+
+    if( visitors !== faceId){
+        this.props.navigation.navigate('Vistor Detail',{
+          Data:this.state.Vistors
+        })
+    }
+  }
 }
 
 
@@ -34,14 +78,22 @@ render(){
   const {hasPermission}=this.state;
   if (hasPermission === null) {
     return <View />;
+
+
   }
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
   return (
-    //<View style={{ flex: 1 }}>
     <Camera 
-                       
+    onFacesDetected={this.faceDetected}
+    FaceDetectorSettings = {{
+     mode: FaceDetector.Constants.Mode.fast,
+     detectLandmarks: FaceDetector.Constants.Landmarks.all,
+     runClassifications: FaceDetector.Constants.Classifications.none,
+     minDetectionInterval: 5000,
+     tracking: false
+   }}         
     ref={ref=>{
       this.camera=ref
     }}
@@ -64,7 +116,6 @@ render(){
        </TouchableOpacity>
        </View>
    </Camera>
-    //</View>
   );
 }
 }

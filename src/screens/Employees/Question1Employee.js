@@ -1,8 +1,9 @@
 import React,{Component} from 'react';
 import {View,Text,StyleSheet,TextInput,ScrollView,TouchableOpacity,ImageBackground} from 'react-native';
-import {db,storage} from '../../util/firebase';
+import {db} from '../../util/firebase';
 import { Camera } from 'expo-camera';
 import { Entypo } from '@expo/vector-icons';
+import * as FaceDetector from 'expo-face-detector'
 class Question1Employee extends Component{
     constructor(){
         super();
@@ -19,10 +20,17 @@ class Question1Employee extends Component{
             type:Camera.Constants.Type.back,
             image:null,
             isPreview:false,
-            isCameraReady:false
+            isCameraReady:false,
+            faces:[]
         }
     }
 
+
+    faceDetected = ({faces}) => {
+      this.setState({
+        faces:faces
+      })
+    }
 
      onCameraReady=()=>{
        this.setState({
@@ -42,27 +50,36 @@ class Question1Employee extends Component{
           const options = {quality: 1,base64: true };
           const data = await this.camera.takePictureAsync(options);
           const source=data.base64;
-  
+          console.log(source)
           
+
           if(source){
              await this.camera.pausePreview();
              this.setState({
                isPreview:true
              })
           }
-          console.log(source);
-          const response=await fetch(source)
-          const blob=await response.blob();
-          var ref = storage.ref().child("my-image");
-          return ref.put(blob);
+     
       }
    }
 
     submitForm = async () =>{
-        const {name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
- 
+        const {faces,name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
+  
+
+      const faceId=faces.map(item=>{
+         return item.faceID
+      })
+
+      const rollAngle=faces.map(item=>{
+        return item.rollAngle;
+      })
+
+
         await db.collection("Employee")
         .add({
+        faceId:faceId,
+        rollAngle:rollAngle,
         date:new Date().toLocaleString(),
         name:name,
         lastName:lastName,
@@ -99,7 +116,7 @@ class Question1Employee extends Component{
             return <Text>No access to camera</Text>;
           }
         return(
-          <ImageBackground source={require('../../image/digital-background.jpg')} style={styles.imageContainer}>
+          <ImageBackground source={require('../../image/background.jpg')} style={styles.imageContainer}>
            <ScrollView style={styles.container}>
                <View style={styles.questionContainer}>
                  <Text style={styles.heading}>Please answer the following questions to assess your probable COVID-19 risk</Text>
@@ -113,7 +130,15 @@ class Question1Employee extends Component{
                          ref={ref=>{
                            this.camera=ref
                          }}
-                        onCameraReady={this.onCameraReady}
+                          onFacesDetected={this.faceDetected}
+                         FaceDetectorSettings = {{
+                          mode: FaceDetector.Constants.Mode.fast,
+                          detectLandmarks: FaceDetector.Constants.Landmarks.all,
+                          runClassifications: FaceDetector.Constants.Classifications.none,
+                          minDetectionInterval: 5000,
+                          tracking:true
+                        }}
+                      
                        style={styles.camera} type={this.state.type}>
                             <View style={styles.buttonContainer}>
                             <TouchableOpacity
@@ -167,7 +192,7 @@ class Question1Employee extends Component{
 
                         <TextInput
                         onChangeText={(e)=> this.setState({Department:e.trim()})}
-                         placeholder="Specify location"
+                         placeholder="Specify Department you"
                         style={styles.inputstyle}
                         value={Department}
                         />
@@ -292,11 +317,11 @@ const styles=StyleSheet.create({
     },
     inputstyle:{
         borderWidth:1,
-        borderColor:"#c2c2c2",
+        borderColor:"#808080",
         width:500,
         padding:15,
         marginTop:15,
-        borderRadius:20
+        borderRadius:30
     },
     buttonContainers:{
         justifyContent:'center',

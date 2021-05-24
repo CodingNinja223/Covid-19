@@ -1,8 +1,9 @@
 import React,{Component} from 'react';
 import {View,Text,StyleSheet,TextInput,ScrollView,TouchableOpacity,ImageBackground} from 'react-native';
-import {db,storage} from '../../util/firebase'
+import {db} from '../../util/firebase'
 import { Camera } from 'expo-camera';
 import { Entypo } from '@expo/vector-icons';
+import * as FaceDetector from 'expo-face-detector'
 class Question extends Component{
     constructor(){
         super();
@@ -19,15 +20,23 @@ class Question extends Component{
                   type:Camera.Constants.Type.back,
                   image:null,
                   isPreview:false,
-                  isCameraReady:false
+                  isCameraReady:false,
+                  faces:[]
         }
     }
 
-    onCameraReady=()=>{
-      this.setState({
-        isCameraReady:true
-      })
-    }
+
+     faceDetected=({faces})=>{
+       this.setState({
+         faces:faces
+       })
+     }
+
+      onCameraReady=()=>{
+        this.setState({
+          isCameraReady:true
+        })
+      }
 
     async componentDidMount(){
       const { status } = await Camera.requestPermissionsAsync();
@@ -52,20 +61,28 @@ class Question extends Component{
              isPreview:true
            })
         }
-        console.log(source);
-        const response=await fetch(source)
-        const blob=await response.blob();
-        var ref = storage.ref().child("my-image");
-        return ref.put(blob);
     }
  }
 
+  
+
     submitForm= async ()=>{
-        const {name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
+        const {faces,name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
         
         
+        const faceId=faces.map(item=>{
+          return item.faceID
+       })
+ 
+       const rollAngle=faces.map(item=>{
+         return item.rollAngle;
+       })
+
+
            await db.collection("Visitors")
           .add({
+          faceId:faceId,
+          rollAngle:rollAngle,
           date:new Date().toLocaleString(),
           name:name,
           lastName:lastName,
@@ -94,7 +111,7 @@ class Question extends Component{
     
 
     render(){
-        const {name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
+        const {name,hasPermission ,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
         if (hasPermission === null) {
           return <View />;
         }
@@ -102,7 +119,7 @@ class Question extends Component{
           return <Text>No access to camera</Text>;
         }
         return(
-          <ImageBackground source={require('../../image/digital-background.jpg')} style={styles.imageContainer}>
+          <ImageBackground source={require('../../image/background.jpg')} style={styles.imageContainer}>
            <ScrollView style={styles.container}>
                <View style={styles.questionContainer}>
                  <Text style={styles.heading}>Please answer the following questions to assess your probable COVID-19 risk</Text>
@@ -114,6 +131,14 @@ class Question extends Component{
 
                        <Camera 
                        onCameraReady={this.onCameraReady}
+                       onFacesDetected={this.faceDetected}
+                       FaceDetectorSettings = {{
+                        mode: FaceDetector.Constants.Mode.fast,
+                        detectLandmarks: FaceDetector.Constants.Landmarks.all,
+                        runClassifications: FaceDetector.Constants.Classifications.none,
+                        minDetectionInterval: 5000,
+                        tracking: false
+                      }}
                        ref={ref=>{
                          this.camera=ref;
                        }}
@@ -149,7 +174,6 @@ class Question extends Component{
                         style={styles.inputstyle}
                          value={name}
                         />
-                        <Text style={styles.errors}>{this.state.errors.name}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -163,7 +187,6 @@ class Question extends Component{
                             style={styles.inputstyle}
                             value={lastName}
                         />
-                        <Text style={styles.errors}>{this.state.errors.lastName}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -178,7 +201,6 @@ class Question extends Component{
                          value={Department}
                         
                         />
-                         <Text style={styles.errors}>{this.state.errors.Department}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -192,7 +214,6 @@ class Question extends Component{
                          style={styles.inputstyle}
                          value={reasonForVisit}
                         />
-                         <Text style={styles.errors}>{this.state.errors.reasonForVisit}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -206,7 +227,6 @@ class Question extends Component{
                             style={styles.inputstyle}
                             value={IDNumber}
                         />
-                         <Text style={styles.errors}>{this.state.errors.IDNumber}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -220,7 +240,6 @@ class Question extends Component{
                         style={styles.inputstyle}
                          value={number}
                         />
-                          <Text style={styles.errors}>{this.state.errors.number}</Text>
                     </View>
                     <View
                     style={styles.horizontalLine}
@@ -235,7 +254,6 @@ class Question extends Component{
                         value={tested}
                      
                         />
-                          <Text style={styles.errors}>{this.state.errors.tested}</Text>
                     </View>
                     <View
                     style={styles.horizontalLine}
@@ -249,7 +267,6 @@ class Question extends Component{
                          style={styles.inputstyle}
                          value={temperature}
                         />
-                        <Text style={styles.errors}>{this.state.errors.temperature}</Text> 
                     </View>
                     <View
                     style={styles.horizontalLine}
@@ -271,7 +288,8 @@ class Question extends Component{
 
 const styles=StyleSheet.create({
   imageContainer:{
-    flex:1
+    flex:1,
+    resizeMode:'contain'
 },
     heading:{
         fontSize:23,
@@ -289,11 +307,11 @@ const styles=StyleSheet.create({
     },
     inputstyle:{
         borderWidth:1,
-        borderColor:"#c2c2c2",
+        borderColor:"#808080",
         width:500,
         padding:15,
         marginTop:15,
-        borderRadius:20
+        borderRadius:30
     },
     buttonContainers:{
         justifyContent:'center',
