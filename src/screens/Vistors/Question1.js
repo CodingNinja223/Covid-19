@@ -1,6 +1,6 @@
 import React,{Component} from 'react';
 import {View,Text,StyleSheet,TextInput,ScrollView,TouchableOpacity,ImageBackground} from 'react-native';
-import {db} from '../../util/firebase'
+import {db,storage} from '../../util/firebase'
 import { Camera } from 'expo-camera';
 import { Entypo } from '@expo/vector-icons';
 import * as FaceDetector from 'expo-face-detector'
@@ -21,7 +21,17 @@ class Question extends Component{
                   image:null,
                   isPreview:false,
                   isCameraReady:false,
-                  faces:[]
+                  faces:[],
+                  errors:{
+                    name:"",
+                    lastName:"",
+                    Department:"",
+                    reasonForVisit:"",
+                    IDNumber:"",
+                    number:"",
+                    tested:"",
+                    temperature:"",
+                  }
         }
     }
 
@@ -46,7 +56,11 @@ class Question extends Component{
     }
 
 
-   
+   uploadImage= async(x)=>{
+     storage.ref().child('file_name')
+    .putString(x,'base64', {contentType:'image/jpg'});
+        
+    }
 
     takePicture = async () => {
       if (this.camera) {
@@ -54,6 +68,7 @@ class Question extends Component{
         const data = await this.camera.takePictureAsync(options);
         const source=data.base64;
 
+         this.uploadImage(source)
         
         if(source){
            await this.camera.pausePreview();
@@ -61,10 +76,29 @@ class Question extends Component{
              isPreview:true
            })
         }
-    }
+    
+      }
  }
 
-  
+  errors=(name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)=>{
+    setTimeout(()=>{
+
+      this.setState({
+        errors:{
+         name:name,
+         lastName:lastName,
+         Department:Department,
+         reasonForVisit:reasonForVisit,
+         IDNumber:IDNumber,
+         number:number,
+         tested:tested,
+         temperature:temperature,
+        }
+      })
+
+    },1000)
+     
+  }
 
     submitForm= async ()=>{
         const {faces,name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
@@ -78,34 +112,71 @@ class Question extends Component{
          return item.rollAngle;
        })
 
+       const required="This field is required";
+       const numberLength="Please enter a 10 digit number";
+       const IDNumberLength="The ID number provided needs to be 13 digits"
 
-           await db.collection("Visitors")
-          .add({
-          faceId:faceId,
-          rollAngle:rollAngle,
-          date:new Date().toLocaleString(),
-          name:name,
-          lastName:lastName,
-          Department:Department,
-          reasonForVisit:reasonForVisit,
-          IDNumber:IDNumber,
-          number:number,
-          tested:tested,
-          temperature:temperature
-        })
+      //  if(name === ''){
+      //   setTimeout(() => {this.errors(required,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)}, 1000);
+      //  } 
+      //  else if(lastName ===''){
+      //   setTimeout(() => this.errors(name,required,Department,reasonForVisit,IDNumber,number,tested,temperature), 1000);
 
-        this.setState({
-                  name:"",
-                  lastName:"",
-                  Department:"",
-                  reasonForVisit:"",
-                  IDNumber:"",
-                  number:"",
-                  tested:"",
-                  temperature:"",
-        })
-               this.props.navigation.navigate("Visitors Thanks");
-          
+      //  }else if(Department === ''){
+      //   setTimeout(() => this.errors(name,lastName,required,reasonForVisit,IDNumber,number,tested,temperature), 1000);
+
+      //  }else if(reasonForVisit === ''){
+      //    setTimeout(() => this.errors(name,lastName,Department,required,IDNumber,number,tested,temperature), 1000);
+
+      //  }else if(IDNumber === '' || IDNumber){
+      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,required,number,tested,temperature), 1000);
+
+      //  }else if(IDNumber.length<13){
+      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumberLength,number,tested,temperature), 1000);
+
+      //  }
+      //  else if(number === ''){
+      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,required,tested,temperature), 1000);
+
+      //  }else if(number.length < 10){
+      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit, IDNumber,numberLength,tested,temperature), 1000);
+
+      //  }else if(tested === ''){
+      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,required,temperature), 1000);
+
+      //  }else if(temperature === ''){
+      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,tested,required), 1000);
+
+      //  } else{
+        await db.collection("Visitors")
+        .add({
+        faceId:faceId,
+        rollAngle:rollAngle,
+        date:new Date().toLocaleString(),
+        name:name,
+        lastName:lastName,
+        Department:Department,
+        reasonForVisit:reasonForVisit,
+        IDNumber:IDNumber,
+        number:number,
+        tested:tested,
+        temperature:temperature
+      })
+
+       this.setState({
+                name:"",
+                lastName:"",
+                Department:"",
+                reasonForVisit:"",
+                IDNumber:"",
+                number:"",
+                tested:"",
+                temperature:"",
+       })
+             this.props.navigation.navigate("Visitors Thanks");
+
+      //  }
+    
     }
 
     
@@ -130,6 +201,7 @@ class Question extends Component{
                        <Text style={styles.question} >Scan Your Face</Text>
 
                        <Camera 
+                       ratio={"16:9"}
                        onCameraReady={this.onCameraReady}
                        onFacesDetected={this.faceDetected}
                        FaceDetectorSettings = {{
@@ -174,6 +246,7 @@ class Question extends Component{
                         style={styles.inputstyle}
                          value={name}
                         />
+                        <Text>{this.state.errors.name}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -187,6 +260,7 @@ class Question extends Component{
                             style={styles.inputstyle}
                             value={lastName}
                         />
+                         <Text>{this.state.errors.lastName}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -201,6 +275,7 @@ class Question extends Component{
                          value={Department}
                         
                         />
+                          <Text>{this.state.errors.Department}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -214,6 +289,7 @@ class Question extends Component{
                          style={styles.inputstyle}
                          value={reasonForVisit}
                         />
+                          <Text>{this.state.errors.reasonForVisit}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -227,6 +303,7 @@ class Question extends Component{
                             style={styles.inputstyle}
                             value={IDNumber}
                         />
+                       <Text>{this.state.errors.IDNumber}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -240,6 +317,7 @@ class Question extends Component{
                         style={styles.inputstyle}
                          value={number}
                         />
+                        <Text>{this.state.errors.number}</Text>
                     </View>
                     <View
                     style={styles.horizontalLine}
@@ -254,6 +332,7 @@ class Question extends Component{
                         value={tested}
                      
                         />
+                        <Text>{this.state.errors.tested}</Text>
                     </View>
                     <View
                     style={styles.horizontalLine}
@@ -267,6 +346,7 @@ class Question extends Component{
                          style={styles.inputstyle}
                          value={temperature}
                         />
+                        <Text>{this.state.errors.temperature}</Text>
                     </View>
                     <View
                     style={styles.horizontalLine}

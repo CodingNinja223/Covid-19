@@ -1,14 +1,7 @@
 import React,{Component} from 'react';
 import {View,Text,StyleSheet,TouchableOpacity,ImageBackground,Image} from 'react-native'
-import { Entypo,MaterialIcons,FontAwesome,Ionicons, AntDesign  } from '@expo/vector-icons'; 
-import { LinearGradient } from 'expo-linear-gradient';
+import { Entypo,MaterialIcons, AntDesign  } from '@expo/vector-icons'; 
 class HomeScreen extends Component{
-    constructor(){
-        super();
-        this.state={}
-    }
-
-
 
     render(){
         return(
@@ -18,11 +11,9 @@ class HomeScreen extends Component{
                    <Image source={require('../image/wiggle.png')} resizeMode="center"  />
                    </View>
                    <View style={styles.justifyFlex}>
-                        <LinearGradient
-                            colors={['#808080', '#9e9e9e', '#bdbebd','#dedede','#ffffff']}
-                            style={styles.Contain}>
+                              <Image source={require('../image/Stroke-bar.png')} resizeMode="contain" style={{width:450}}/>
                             <Text style={styles.text}>COVID SCREENING</Text>
-                        </LinearGradient>
+                       
                    </View>
                    <View style={{justifyContent:'center',alignItems:'center'}}>
                        <TouchableOpacity                     
@@ -39,7 +30,7 @@ class HomeScreen extends Component{
                            <TouchableOpacity
                            onPress={()=> this.props.navigation.navigate('COVID-19 Monitor Q1 E')}
                            >
-                               <FontAwesome name="users" size={35} color="black" style={styles.icon2} />
+                               <Image source={require('../image/Staff.png')} resizeMode="center" style={styles.imageIcon}/>
                                <Image source={require('../image/bar.png')}  resizeMode="center" style={{height:100}}/>
                                <View style={styles.iconspacing2}>
                                   <Text style={styles.textIconFontSize}>Staff</Text>
@@ -96,7 +87,9 @@ justifyFlex:{
 },
 text:{
     fontSize:28,
-    fontWeight:"bold"
+    fontWeight:"bold",
+    position:'absolute',
+    zIndex:1
 },
 flexContainer:{
     flexDirection:'row',
@@ -163,6 +156,13 @@ textIconFontSize:{
 imageContainers:{
     alignItems:'center',
     justifyContent:'center'
+},
+imageIcon:{
+    position:'absolute',
+    width:50,
+    left:220,
+    zIndex:2,
+    bottom:-40
 }
 })
 

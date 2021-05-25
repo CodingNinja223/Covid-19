@@ -40,42 +40,82 @@ async componentDidMount(){
   })
 
   const snapshot = await db.collection('Visitors').get();
+       const data=[]
         snapshot.forEach((doc) => {
           console.log(doc.id, '=>', doc.data());
-          const data=[]
+        
           data.push({ Data:doc.data(),id: doc.id })
           this.setState({
               Vistors: [...data],
               isloading:false
           })
       });
+
+      const snapshots = await db.collection('Employee').get();
+      const datas=[]
+        snapshots.forEach((doc) => {
+          console.log(doc.id, '=>', doc.data());
+          datas.push({ Data:doc.data(),id: doc.id })
+          this.setState({
+              Employees: [...datas],
+              isloading:false
+          })
+      });
 }
 
+ recognize=async(x)=>{
+  const rawResponse = await fetch(`https://api.kairos.com/recognize`, {
+    method: 'POST',
+    headers: HEADERS,
+    body: JSON.stringify({
+        "image": x,
+        "gallery_name": "MyGallery"
+    })
+  });
+  const content = await rawResponse.json();
+  return content;
+ }
+
 takePicture = async () => {
-  const {faces,Vistors}=this.state;
+  const {faces,Vistors,Employees}=this.state;
   if (this.camera) {
     const options = {quality: 1,base64: true };
     const data = await this.camera.takePictureAsync(options);
-    const source=data.base64;
-
+    const result=data.base64;
      const visitors=Vistors.map(item=>{
-        return item.Data.rollAngle
+        return item.Data.rollAngle[0]
      })
-    const faceId=faces.map(item=>{
-      return item.rollAngle
-   })
 
-    if( visitors !== faceId){
-        this.props.navigation.navigate('Vistor Detail',{
-          Data:this.state.Vistors
-        })
-    }
+  //    const employee=Employees.map(item=>{
+  //      return item.Data.rollAngle[0]
+  // })
+    const faceId=faces.map(item=>{
+        return item.rollAngle[0]
+    })
+
+  //   const visitorsData=Vistors.map(item=>{
+  //     return item;
+  //  })
+
+  //  const employeeData=Employees.map(item=>{
+  //   return item
+  //  })
+   
+   if(faceId !== visitors || faceId !== visitors){
+     this.props.navigation.navigate('Questions')
+   }
+   else if(faces ){
+
+   }
+    
+
   }
 }
 
 
 render(){
-  const {hasPermission}=this.state;
+  const {hasPermission,Vistors,Employees}=this.state;
+  console.log(this.state.faces);
   if (hasPermission === null) {
     return <View />;
 
@@ -86,13 +126,14 @@ render(){
   }
   return (
     <Camera 
+    ratio={"16:9"}
     onFacesDetected={this.faceDetected}
     FaceDetectorSettings = {{
-     mode: FaceDetector.Constants.Mode.fast,
+     mode: FaceDetector.Constants.Mode.accurate,
      detectLandmarks: FaceDetector.Constants.Landmarks.all,
      runClassifications: FaceDetector.Constants.Classifications.none,
      minDetectionInterval: 5000,
-     tracking: false
+     tracking:true
    }}         
     ref={ref=>{
       this.camera=ref
