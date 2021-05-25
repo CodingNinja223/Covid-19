@@ -40,7 +40,7 @@ async componentDidMount(){
   })
 
   const snapshot = await db.collection('Visitors').get();
-       const data=[]
+       const data=[];
         snapshot.forEach((doc) => {
           console.log(doc.id, '=>', doc.data());
         
@@ -52,7 +52,7 @@ async componentDidMount(){
       });
 
       const snapshots = await db.collection('Employee').get();
-      const datas=[]
+      const datas=[];
         snapshots.forEach((doc) => {
           console.log(doc.id, '=>', doc.data());
           datas.push({ Data:doc.data(),id: doc.id })
@@ -60,7 +60,7 @@ async componentDidMount(){
               Employees: [...datas],
               isloading:false
           })
-      });
+     });
 }
 
  recognize=async(x)=>{
@@ -83,29 +83,36 @@ takePicture = async () => {
     const data = await this.camera.takePictureAsync(options);
     const result=data.base64;
      const visitors=Vistors.map(item=>{
-        return item.Data.rollAngle[0]
+        return item.Data.faceId[0]
      })
 
-  //    const employee=Employees.map(item=>{
-  //      return item.Data.rollAngle[0]
-  // })
-    const faceId=faces.map(item=>{
-        return item.rollAngle[0]
-    })
+     const employee=Employees.map(item=>{
+       return item.Data.faceId[0]
+     })
+     
+      const faceId=faces.map(item=>{
+          return item.rollAngle
+      })
 
-  //   const visitorsData=Vistors.map(item=>{
-  //     return item;
-  //  })
+    const visitorsData=Vistors.map(item=>{
+      return item;
+   })
 
-  //  const employeeData=Employees.map(item=>{
-  //   return item
-  //  })
+   const employeeData=Employees.map(item=>{
+    return item;
+   })
    
-   if(faceId !== visitors || faceId !== visitors){
-     this.props.navigation.navigate('Questions')
-   }
-   else if(faces ){
-
+  //  if(faceId !== visitors || faceId !== visitors){
+  //    this.props.navigation.navigate('Questions')
+  //  }
+    if(faceId ===visitors ){
+    this.props.navigation.navigate('Vistor Detail',{
+         Data:[...visitorsData]
+    })
+   }else if(faceId === employee){
+    this.props.navigation.navigate('Employee Detail',{
+         Data:[...employeeData]
+    })
    }
     
 

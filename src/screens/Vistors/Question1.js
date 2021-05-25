@@ -57,18 +57,21 @@ class Question extends Component{
 
 
    uploadImage= async(x)=>{
-     storage.ref().child('file_name')
-    .putString(x,'base64', {contentType:'image/jpg'});
+    const response = await fetch(x);
+    const blob =  await response.blob();
+
+    const ref =storage.ref().child(`images/${x}`);
+    return ref.put(blob);
         
     }
 
     takePicture = async () => {
       if (this.camera) {
         const options = {quality: 1,base64: true };
-        const data = await this.camera.takePictureAsync(options);
+        const data = await this.camera.takePictureAsync(null);
         const source=data.base64;
 
-         this.uploadImage(source)
+         this.uploadImage(data.uri)
         
         if(source){
            await this.camera.pausePreview();
@@ -116,38 +119,38 @@ class Question extends Component{
        const numberLength="Please enter a 10 digit number";
        const IDNumberLength="The ID number provided needs to be 13 digits"
 
-      //  if(name === ''){
-      //   setTimeout(() => {this.errors(required,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)}, 1000);
-      //  } 
-      //  else if(lastName ===''){
-      //   setTimeout(() => this.errors(name,required,Department,reasonForVisit,IDNumber,number,tested,temperature), 1000);
+       if(name === ''){
+        setTimeout(() => {this.errors(required,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)}, 1000);
+       } 
+       else if(lastName ===''){
+        setTimeout(() => this.errors(name,required,Department,reasonForVisit,IDNumber,number,tested,temperature), 1000);
 
-      //  }else if(Department === ''){
-      //   setTimeout(() => this.errors(name,lastName,required,reasonForVisit,IDNumber,number,tested,temperature), 1000);
+       }else if(Department === ''){
+        setTimeout(() => this.errors(name,lastName,required,reasonForVisit,IDNumber,number,tested,temperature), 1000);
 
-      //  }else if(reasonForVisit === ''){
-      //    setTimeout(() => this.errors(name,lastName,Department,required,IDNumber,number,tested,temperature), 1000);
+       }else if(reasonForVisit === ''){
+         setTimeout(() => this.errors(name,lastName,Department,required,IDNumber,number,tested,temperature), 1000);
 
-      //  }else if(IDNumber === '' || IDNumber){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,required,number,tested,temperature), 1000);
+       }else if(IDNumber === '' || IDNumber){
+        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,required,number,tested,temperature), 1000);
 
-      //  }else if(IDNumber.length<13){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumberLength,number,tested,temperature), 1000);
+       }else if(IDNumber.length<13){
+        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumberLength,number,tested,temperature), 1000);
 
-      //  }
-      //  else if(number === ''){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,required,tested,temperature), 1000);
+       }
+       else if(number === ''){
+        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,required,tested,temperature), 1000);
 
-      //  }else if(number.length < 10){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit, IDNumber,numberLength,tested,temperature), 1000);
+       }else if(number.length < 10){
+        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit, IDNumber,numberLength,tested,temperature), 1000);
 
-      //  }else if(tested === ''){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,required,temperature), 1000);
+       }else if(tested === ''){
+        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,required,temperature), 1000);
 
-      //  }else if(temperature === ''){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,tested,required), 1000);
+       }else if(temperature === ''){
+        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,tested,required), 1000);
 
-      //  } else{
+       } else{
         await db.collection("Visitors")
         .add({
         faceId:faceId,
@@ -175,7 +178,7 @@ class Question extends Component{
        })
              this.props.navigation.navigate("Visitors Thanks");
 
-      //  }
+       }
     
     }
 
@@ -201,7 +204,6 @@ class Question extends Component{
                        <Text style={styles.question} >Scan Your Face</Text>
 
                        <Camera 
-                       ratio={"16:9"}
                        onCameraReady={this.onCameraReady}
                        onFacesDetected={this.faceDetected}
                        FaceDetectorSettings = {{

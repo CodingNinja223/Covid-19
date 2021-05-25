@@ -13,7 +13,6 @@ class HomeScreen extends Component{
                    <View style={styles.justifyFlex}>
                               <Image source={require('../image/Stroke-bar.png')} resizeMode="contain" style={{width:450}}/>
                             <Text style={styles.text}>COVID SCREENING</Text>
-                       
                    </View>
                    <View style={{justifyContent:'center',alignItems:'center'}}>
                        <TouchableOpacity                     
