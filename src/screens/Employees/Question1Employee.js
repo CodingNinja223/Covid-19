@@ -1,6 +1,6 @@
 import React,{Component} from 'react';
 import {View,Text,StyleSheet,TextInput,ScrollView,TouchableOpacity,ImageBackground} from 'react-native';
-import {db} from '../../util/firebase'
+import {db,storage} from '../../util/firebase'
 import { Camera } from 'expo-camera';
 import { Entypo } from '@expo/vector-icons';
 import * as FaceDetector from 'expo-face-detector'
@@ -31,7 +31,8 @@ class Question1Employee extends Component{
                     number:"",
                     tested:"",
                     temperature:"",
-                  }
+                  },
+                  imageUrl:null
          }
     }
 
@@ -56,14 +57,26 @@ class Question1Employee extends Component{
     }
 
 
+    uploadImage= async(x)=>{
+      const response = await fetch(x);
+      const blob =  await response.blob();
+  
+      const ref =storage.ref().child(`visitors/${x}`);
+      return ref.put(blob)
+      .then(storage=>{
+        this.setState({
+         imageUrl:storage.downloadURL
+        })
+      })   
+    }
    
-
     takePicture = async () => {
       if (this.camera) {
         const options = {quality: 1,base64: true };
-        const data = await this.camera.takePictureAsync(options);
+        const data = await this.camera.takePictureAsync(null);
         const source=data.base64;
 
+         this.uploadImage(data.uri)
         
         if(source){
            await this.camera.pausePreview();
@@ -71,8 +84,8 @@ class Question1Employee extends Component{
              isPreview:true
            })
         }
-    }
-
+    
+      }
  }
 
   errors=(name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)=>{
@@ -85,13 +98,13 @@ class Question1Employee extends Component{
         IDNumber:IDNumber,
         number:number,
         tested:tested,
-        temperature:temperature,
+        temperature:temperature
        }
      })
   }
 
     submitForm= async ()=>{
-        const {faces,name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
+        const {faces,imageUrl,name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
         
         
         const faceId=faces.map(item=>{
@@ -101,44 +114,14 @@ class Question1Employee extends Component{
        const rollAngle=faces.map(item=>{
          return item.rollAngle;
        })
+ 
 
-       const required="This field is required";
-       const numberLength="Please enter a 10 digit number";
-       const IDNumberLength="The ID number provided needs to be 13 digits"
-
-      //  if(name === ''){
-      //   setTimeout(() => this.errors(required,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature), 1000);
-      //  } 
-      //  else if(lastName ===''){
-      //   setTimeout(() => this.errors(name,required,Department,reasonForVisit,IDNumber,number,tested,temperature), 1000);
-
-      //  }else if(Department === ''){
-      //   setTimeout(() => this.errors(name,lastName,required,reasonForVisit,IDNumber,number,tested,temperature), 1000);
-
-      //  }else if(reasonForVisit === ''){
-      //    setTimeout(() => this.errors(name,lastName,Department,required,IDNumber,number,tested,temperature), 1000);
-
-      //  }else if(IDNumber === '' || IDNumber){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,required,number,tested,temperature), 1000);
-
-      //  }else if(IDNumber<13){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumberLength,number,tested,temperature), 1000);
-
-      //  }
-      //  else if(number === ''){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,required,tested,temperature), 1000);
-
-      //  }else if(number < 10){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit, IDNumber,numberLength,tested,temperature), 1000);
-
-      //  }else if(tested === ''){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,required,temperature), 1000);
-
-      //  }else if(temperature === ''){
-      //   setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,tested,required), 1000);
-
-      //  } else{
-        await db.collection("Visitors")
+        const errorName="This field is required";
+       if(name === '' && lastName === '' &&  Department === '' && reasonForVisit === '' && IDNumber === '' && number === '' && tested === '' && temperature === ''){
+          setTimeout(()=>this.errors(errorName,errorName,errorName,errorName,errorName,errorName,errorName,errorName),3000)
+       }
+       else{
+        await db.collection("Employee")
         .add({
         faceId:faceId,
         rollAngle:rollAngle,
@@ -163,16 +146,20 @@ class Question1Employee extends Component{
                 tested:"",
                 temperature:"",
        })
-             this.props.navigation.navigate("Visitors Thanks");
+             this.props.navigation.navigate("Employee Thanks");
 
-      //  }
+       }
+
+        
     
     }
 
     
 
     render(){
-        const {name,hasPermission ,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
+        const {imageUrl,name,hasPermission ,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
+        
+        console.log(imageUrl);
         if (hasPermission === null) {
           return <View />;
         }
@@ -231,12 +218,23 @@ class Question1Employee extends Component{
                        <Text style={styles.question} >Please provide your first name.</Text>
 
                         <TextInput
-                         onChangeText={(e)=> this.setState({name:e.trim()})}
+                         onChangeText={(e)=> {
+                           this.setState({name:e.trim()})
+                          
+                           if(e){
+                             this.setState({
+                               errors:{
+                                 name:''
+                               }
+                             })
+                           }
+                          
+                          }}
                          placeholder="First Name"
                         style={styles.inputstyle}
                          value={name}
                         />
-                        <Text>{this.state.errors.name}</Text>
+                        <Text style={styles.danger}>{this.state.errors.name}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -245,12 +243,21 @@ class Question1Employee extends Component{
                        <Text style={styles.question} >Please provide your last name.</Text>
 
                         <TextInput
-                            onChangeText={(e)=> this.setState({lastName:e.trim()})}
+                            onChangeText={(e)=>{ this.setState({lastName:e.trim()})
+                          
+                            if(e){
+                              this.setState({
+                                errors:{
+                                  lastName:''
+                                }
+                              })
+                            }
+                              }}
                             placeholder="Last Name"
                             style={styles.inputstyle}
                             value={lastName}
                         />
-                         <Text>{this.state.errors.lastName}</Text>
+                         <Text style={styles.danger}>{this.state.errors.lastName}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -259,13 +266,22 @@ class Question1Employee extends Component{
                        <Text style={styles.question} >Please specify the location/department of your visit.</Text>
 
                         <TextInput
-                        onChangeText={(e)=> this.setState({Department:e.trim()})}
+                        onChangeText={(e)=>{ this.setState({Department:e.trim()})
+                      
+                        if(e){
+                          this.setState({
+                            errors:{
+                              Department:''
+                            }
+                          })
+                        }
+                         }}
                          placeholder="Specify location"
                         style={styles.inputstyle}
                          value={Department}
                         
                         />
-                          <Text>{this.state.errors.Department}</Text>
+                          <Text style={styles.danger}>{this.state.errors.Department}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -274,12 +290,22 @@ class Question1Employee extends Component{
                        <Text style={styles.question} >Person/reason for your visit.</Text>
 
                         <TextInput
-                         onChangeText={(e)=> this.setState({reasonForVisit:e.trim()})}
+                         onChangeText={(e)=> {this.setState({reasonForVisit:e.trim()})
+                        
+                         if(e){
+                          this.setState({
+                            errors:{
+                              reasonForVisit:''
+                            }
+                          })
+                        }
+                        
+                        }}
                          placeholder="Reason for Visit"
                          style={styles.inputstyle}
                          value={reasonForVisit}
                         />
-                          <Text>{this.state.errors.reasonForVisit}</Text>
+                          <Text style={styles.danger}>{this.state.errors.reasonForVisit}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -288,12 +314,29 @@ class Question1Employee extends Component{
                        <Text style={styles.question} >Please provide your ID number.</Text>
 
                         <TextInput
-                            onChangeText={(e)=> this.setState({IDNumber:e.trim()})}
+                            onChangeText={(e)=>{ this.setState({IDNumber:e.trim()})
+                          
+                              if(e.length<13){
+                                const error="Characters need to be 13 characters";
+                                this.setState({
+                                 errors:{
+                                  IDNumber:error
+                                 }
+                                })
+                              }else{
+                                this.setState({
+                                  errors:{
+                                    IDNumber:''
+                                  }
+                                 })
+                              }
+                          
+                             }}
                             placeholder="ID"
                             style={styles.inputstyle}
                             value={IDNumber}
                         />
-                       <Text>{this.state.errors.IDNumber}</Text>
+                       <Text style={styles.danger}>{this.state.errors.IDNumber}</Text>
                     </View>
                     <View
                       style={styles.horizontalLine}
@@ -302,12 +345,29 @@ class Question1Employee extends Component{
                        <Text style={styles.question} >Please provide your phone number.</Text>
 
                         <TextInput
-                        onChangeText={(e)=> this.setState({number:e.trim()})}
+                        onChangeText={(e)=> {this.setState({number:e.trim()})
+                          
+                            if(e.length<10){
+                              const error="Characters need to be 10 characters";
+                              this.setState({
+                               errors:{
+                                 number:error
+                               }
+                              })
+                            }else{
+                              this.setState({
+                                errors:{
+                                  number:''
+                                }
+                               })
+                            }
+                          
+                          }}
                          placeholder="Number"
                         style={styles.inputstyle}
                          value={number}
                         />
-                        <Text>{this.state.errors.number}</Text>
+                        <Text style={styles.danger}>{this.state.errors.number}</Text>
                     </View>
                     <View
                     style={styles.horizontalLine}
@@ -316,13 +376,23 @@ class Question1Employee extends Component{
                        <Text style={styles.question} >Have you been tested for COVID-19 in the past 10 days? If so, what was the outcome of your test?</Text>
 
                         <TextInput
-                        onChangeText={(e)=> this.setState({tested:e.trim()})}
+                        onChangeText={(e)=>{ this.setState({tested:e.trim()})
+                      
+                        if(e){
+                          this.setState({
+                            errors:{
+                              tested:''
+                            }
+                          })
+                        }
+                      
+                        }}
                          placeholder="Yes Or No"
                         style={styles.inputstyle}
                         value={tested}
                      
                         />
-                        <Text>{this.state.errors.tested}</Text>
+                        <Text style={styles.danger}>{this.state.errors.tested}</Text>
                     </View>
                     <View
                     style={styles.horizontalLine}
@@ -331,12 +401,22 @@ class Question1Employee extends Component{
                        <Text style={styles.question} >What is your temperature?</Text>
 
                         <TextInput
-                         onChangeText={(e)=> this.setState({temperature:e.trim()})}
+                         onChangeText={(e)=> {this.setState({temperature:e.trim()})
+                        
+                         if(e){
+                          this.setState({
+                            errors:{
+                              temperature:''
+                            }
+                          })
+                        }
+                        
+                          }}
                          placeholder="34.7"
                          style={styles.inputstyle}
                          value={temperature}
                         />
-                        <Text>{this.state.errors.temperature}</Text>
+                        <Text style={styles.danger}>{this.state.errors.temperature}</Text>
                     </View>
                     <View
                     style={styles.horizontalLine}
@@ -441,6 +521,10 @@ const styles=StyleSheet.create({
       left:160,
       justifyContent:'center',
       alignItems:'center'
+    },
+    danger:{
+      color:'red',
+      marginTop:15
     }
 })
 

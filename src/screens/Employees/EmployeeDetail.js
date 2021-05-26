@@ -1,8 +1,7 @@
 import React,{Component} from 'react';
 import {View,Text,ScrollView,StyleSheet,TouchableOpacity,TextInput,Alert,ImageBackground,Image} from 'react-native';
-import { Avatar } from 'react-native-elements';
 import { Fontisto,FontAwesome5,MaterialCommunityIcons,Entypo,EvilIcons, AntDesign } from '@expo/vector-icons'; 
-import { Button, Overlay } from 'react-native-elements';
+import { Overlay } from 'react-native-elements';
 import {db} from '../../util/firebase';
 
 class EmployeeDetail extends Component{
@@ -23,21 +22,27 @@ class EmployeeDetail extends Component{
      }
 
      updateTemperateHandler= async ()=>{
+       
         const {Data}=this.props.route.params;
-        const{updatedTemperature}=this.state
+        const{updatedTemperature,name}=this.state
         const id=Data.map(item=>{
             return item.id
         })
+
         await db.collection("Temperature")
         .add({
-          date:new Date().toLocaleString(),
-          temperature:updatedTemperature
-      })
+            date:new Date().toLocaleString(),
+            temperature:updatedTemperature,
+            name:name
+        })
+
           this.setState({
             updatedTemperature:'',
             name:""
           })
+
           Alert.alert(`Thank you ${this.state.name} your Temperature has been updated`)
+
     }
 
     render(){

@@ -2,7 +2,7 @@ import React from 'react';
 import {View,Text,TouchableOpacity,StyleSheet} from 'react-native';
 
 
-const Questionaire =({navigation})=>{
+const Questionaire =(props)=>{
 
     return(
        <View style={styles.container}>
@@ -11,7 +11,7 @@ const Questionaire =({navigation})=>{
           <TouchableOpacity
             style={styles.box1}
           onPress={()=>{
-              navigation.navigate('COVID-19 Monitor Q1 V')
+              props.navigation.navigate('COVID-19 Monitor Q1 V')
           }}
           >
                   <Text>Vistors</Text>
@@ -20,7 +20,7 @@ const Questionaire =({navigation})=>{
            style={styles.box2}
             
           onPress={()=>{
-            navigation.navigate('COVID-19 Monitor Q1 E')
+            props.navigation.navigate('COVID-19 Monitor Q1 E')
         }}
           >
                     <Text>Employees</Text>

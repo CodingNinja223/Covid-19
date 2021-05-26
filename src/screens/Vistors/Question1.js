@@ -60,10 +60,9 @@ class Question extends Component{
     const response = await fetch(x);
     const blob =  await response.blob();
 
-    const ref =storage.ref().child(`images/${x}`);
-    return ref.put(blob);
-        
-    }
+    const ref =storage.ref().child(`visitors/${x}`);
+    return ref.put(blob)   
+  }
 
     takePicture = async () => {
       if (this.camera) {
@@ -83,25 +82,20 @@ class Question extends Component{
       }
  }
 
-  errors=(name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)=>{
-    setTimeout(()=>{
-
-      this.setState({
-        errors:{
-         name:name,
-         lastName:lastName,
-         Department:Department,
-         reasonForVisit:reasonForVisit,
-         IDNumber:IDNumber,
-         number:number,
-         tested:tested,
-         temperature:temperature,
-        }
-      })
-
-    },1000)
-     
-  }
+ errors=(name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)=>{
+  this.setState({
+    errors:{
+     name:name,
+     lastName:lastName,
+     Department:Department,
+     reasonForVisit:reasonForVisit,
+     IDNumber:IDNumber,
+     number:number,
+     tested:tested,
+     temperature:temperature
+    }
+  })
+}
 
     submitForm= async ()=>{
         const {faces,name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
@@ -115,42 +109,11 @@ class Question extends Component{
          return item.rollAngle;
        })
 
-       const required="This field is required";
-       const numberLength="Please enter a 10 digit number";
-       const IDNumberLength="The ID number provided needs to be 13 digits"
-
-       if(name === ''){
-        setTimeout(() => {this.errors(required,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)}, 1000);
-       } 
-       else if(lastName ===''){
-        setTimeout(() => this.errors(name,required,Department,reasonForVisit,IDNumber,number,tested,temperature), 1000);
-
-       }else if(Department === ''){
-        setTimeout(() => this.errors(name,lastName,required,reasonForVisit,IDNumber,number,tested,temperature), 1000);
-
-       }else if(reasonForVisit === ''){
-         setTimeout(() => this.errors(name,lastName,Department,required,IDNumber,number,tested,temperature), 1000);
-
-       }else if(IDNumber === '' || IDNumber){
-        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,required,number,tested,temperature), 1000);
-
-       }else if(IDNumber.length<13){
-        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumberLength,number,tested,temperature), 1000);
-
+       const errorName="This field is required";
+       if(name === '' && lastName === '' &&  Department === '' && reasonForVisit === '' && IDNumber === '' && number === '' && tested === '' && temperature === ''){
+          setTimeout(()=>this.errors(errorName,errorName,errorName,errorName,errorName,errorName,errorName,errorName),3000)
        }
-       else if(number === ''){
-        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,required,tested,temperature), 1000);
-
-       }else if(number.length < 10){
-        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit, IDNumber,numberLength,tested,temperature), 1000);
-
-       }else if(tested === ''){
-        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,required,temperature), 1000);
-
-       }else if(temperature === ''){
-        setTimeout(() => this.errors(name,lastName,Department,reasonForVisit,IDNumber,number,tested,required), 1000);
-
-       } else{
+       else{
         await db.collection("Visitors")
         .add({
         faceId:faceId,
@@ -176,7 +139,7 @@ class Question extends Component{
                 tested:"",
                 temperature:"",
        })
-             this.props.navigation.navigate("Visitors Thanks");
+             this.props.navigation.navigate("Visitor Thanks");
 
        }
     
@@ -194,175 +157,269 @@ class Question extends Component{
         }
         return(
           <ImageBackground source={require('../../image/background.jpg')} style={styles.imageContainer}>
-           <ScrollView style={styles.container}>
-               <View style={styles.questionContainer}>
-                 <Text style={styles.heading}>Please answer the following questions to assess your probable COVID-19 risk</Text>
-                 <View
-                    style={styles.horizontalLine}
-                    />
-                    <View style={styles.inputContainer}>
-                       <Text style={styles.question} >Scan Your Face</Text>
+          <ScrollView style={styles.container}>
+              <View style={styles.questionContainer}>
+                <Text style={styles.heading}>Please answer the following questions to assess your probable COVID-19 risk</Text>
+                <View
+                   style={styles.horizontalLine}
+                   />
+                   <View style={styles.inputContainer}>
+                      <Text style={styles.question} >Scan Your Face</Text>
 
-                       <Camera 
-                       onCameraReady={this.onCameraReady}
-                       onFacesDetected={this.faceDetected}
-                       FaceDetectorSettings = {{
-                        mode: FaceDetector.Constants.Mode.fast,
-                        detectLandmarks: FaceDetector.Constants.Landmarks.all,
-                        runClassifications: FaceDetector.Constants.Classifications.none,
-                        minDetectionInterval: 5000,
-                        tracking: false
+                      <Camera 
+                      ratio={"16:9"}
+                      onCameraReady={this.onCameraReady}
+                      onFacesDetected={this.faceDetected}
+                      FaceDetectorSettings = {{
+                       mode: FaceDetector.Constants.Mode.fast,
+                       detectLandmarks: FaceDetector.Constants.Landmarks.all,
+                       runClassifications: FaceDetector.Constants.Classifications.none,
+                       minDetectionInterval: 5000,
+                       tracking: false
+                     }}
+                      ref={ref=>{
+                        this.camera=ref;
                       }}
-                       ref={ref=>{
-                         this.camera=ref;
-                       }}
-                       style={styles.camera} type={this.state.type}>
-                            <View style={styles.buttonContainer}>
-                            <TouchableOpacity
-                                style={styles.button}
-                                onPress={() => {
-                                this.setState({
-                                  type:this.state.type === Camera.Constants.Type.back
-                                  ? Camera.Constants.Type.front
-                                  : Camera.Constants.Type.back
-                                })
-                                }}>
-                                  
-                                <Text style={styles.text}> Flip </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.cameraContainer} onPress={this.takePicture}> 
-                                      <Entypo name="camera" size={35} color="red" />
-                            </TouchableOpacity>
-                            </View>
-                        </Camera>
-                    </View>
-                    <View
-                      style={styles.horizontalLine}
-                    />
-                    <View style={styles.inputContainer}>
-                       <Text style={styles.question} >Please provide your first name.</Text>
+                      style={styles.camera} type={this.state.type}>
+                           <View style={styles.buttonContainer}>
+                           <TouchableOpacity
+                               style={styles.button}
+                               onPress={() => {
+                               this.setState({
+                                 type:this.state.type === Camera.Constants.Type.back
+                                 ? Camera.Constants.Type.front
+                                 : Camera.Constants.Type.back
+                               })
+                               }}>
+                                 
+                               <Text style={styles.text}> Flip </Text>
+                           </TouchableOpacity>
+                           <TouchableOpacity style={styles.cameraContainer} onPress={this.takePicture}> 
+                                     <Entypo name="camera" size={35} color="red" />
+                           </TouchableOpacity>
+                           </View>
+                       </Camera>
+                   </View>
+                   <View
+                     style={styles.horizontalLine}
+                   />
+                   <View style={styles.inputContainer}>
+                      <Text style={styles.question} >Please provide your first name.</Text>
 
-                        <TextInput
-                         onChangeText={(e)=> this.setState({name:e.trim()})}
-                         placeholder="First Name"
-                        style={styles.inputstyle}
-                         value={name}
-                        />
-                        <Text>{this.state.errors.name}</Text>
-                    </View>
-                    <View
-                      style={styles.horizontalLine}
-                    />
-                    <View style={styles.inputContainer}>
-                       <Text style={styles.question} >Please provide your last name.</Text>
+                       <TextInput
+                        onChangeText={(e)=> {
+                          this.setState({name:e.trim()})
+                         
+                          if(e){
+                            this.setState({
+                              errors:{
+                                name:''
+                              }
+                            })
+                          }
+                         
+                         }}
+                        placeholder="First Name"
+                       style={styles.inputstyle}
+                        value={name}
+                       />
+                       <Text style={styles.danger}>{this.state.errors.name}</Text>
+                   </View>
+                   <View
+                     style={styles.horizontalLine}
+                   />
+                   <View style={styles.inputContainer}>
+                      <Text style={styles.question} >Please provide your last name.</Text>
 
-                        <TextInput
-                            onChangeText={(e)=> this.setState({lastName:e.trim()})}
-                            placeholder="Last Name"
-                            style={styles.inputstyle}
-                            value={lastName}
-                        />
-                         <Text>{this.state.errors.lastName}</Text>
-                    </View>
-                    <View
-                      style={styles.horizontalLine}
-                    />
-                    <View style={styles.inputContainer}>
-                       <Text style={styles.question} >Please specify the location/department of your visit.</Text>
+                       <TextInput
+                           onChangeText={(e)=>{ this.setState({lastName:e.trim()})
+                         
+                           if(e){
+                             this.setState({
+                               errors:{
+                                 lastName:''
+                               }
+                             })
+                           }
+                             }}
+                           placeholder="Last Name"
+                           style={styles.inputstyle}
+                           value={lastName}
+                       />
+                        <Text style={styles.danger}>{this.state.errors.lastName}</Text>
+                   </View>
+                   <View
+                     style={styles.horizontalLine}
+                   />
+                   <View style={styles.inputContainer}>
+                      <Text style={styles.question} >Please specify the location/department of your visit.</Text>
 
-                        <TextInput
-                        onChangeText={(e)=> this.setState({Department:e.trim()})}
-                         placeholder="Specify location"
-                        style={styles.inputstyle}
-                         value={Department}
-                        
-                        />
-                          <Text>{this.state.errors.Department}</Text>
-                    </View>
-                    <View
-                      style={styles.horizontalLine}
-                    />
-                      <View style={styles.inputContainer}>
-                       <Text style={styles.question} >Person/reason for your visit.</Text>
-
-                        <TextInput
-                         onChangeText={(e)=> this.setState({reasonForVisit:e.trim()})}
-                         placeholder="Reason for Visit"
-                         style={styles.inputstyle}
-                         value={reasonForVisit}
-                        />
-                          <Text>{this.state.errors.reasonForVisit}</Text>
-                    </View>
-                    <View
-                      style={styles.horizontalLine}
-                    />
-                    <View style={styles.inputContainer}>
-                       <Text style={styles.question} >Please provide your ID number.</Text>
-
-                        <TextInput
-                            onChangeText={(e)=> this.setState({IDNumber:e.trim()})}
-                            placeholder="ID"
-                            style={styles.inputstyle}
-                            value={IDNumber}
-                        />
-                       <Text>{this.state.errors.IDNumber}</Text>
-                    </View>
-                    <View
-                      style={styles.horizontalLine}
-                    />
-                    <View style={styles.inputContainer}>
-                       <Text style={styles.question} >Please provide your phone number.</Text>
-
-                        <TextInput
-                        onChangeText={(e)=> this.setState({number:e.trim()})}
-                         placeholder="Number"
-                        style={styles.inputstyle}
-                         value={number}
-                        />
-                        <Text>{this.state.errors.number}</Text>
-                    </View>
-                    <View
-                    style={styles.horizontalLine}
-                    />
-                     <View style={styles.inputContainer}>
-                       <Text style={styles.question} >Have you been tested for COVID-19 in the past 10 days? If so, what was the outcome of your test?</Text>
-
-                        <TextInput
-                        onChangeText={(e)=> this.setState({tested:e.trim()})}
-                         placeholder="Yes Or No"
-                        style={styles.inputstyle}
-                        value={tested}
+                       <TextInput
+                       onChangeText={(e)=>{ this.setState({Department:e.trim()})
                      
-                        />
-                        <Text>{this.state.errors.tested}</Text>
-                    </View>
-                    <View
-                    style={styles.horizontalLine}
-                    />
-                    <View style={styles.inputContainer}>
-                       <Text style={styles.question} >What is your temperature?</Text>
+                       if(e){
+                         this.setState({
+                           errors:{
+                             Department:''
+                           }
+                         })
+                       }
+                        }}
+                        placeholder="Specify location"
+                       style={styles.inputstyle}
+                        value={Department}
+                       
+                       />
+                         <Text style={styles.danger}>{this.state.errors.Department}</Text>
+                   </View>
+                   <View
+                     style={styles.horizontalLine}
+                   />
+                     <View style={styles.inputContainer}>
+                      <Text style={styles.question} >Person/reason for your visit.</Text>
 
-                        <TextInput
-                         onChangeText={(e)=> this.setState({temperature:e.trim()})}
-                         placeholder="34.7"
-                         style={styles.inputstyle}
-                         value={temperature}
-                        />
-                        <Text>{this.state.errors.temperature}</Text>
-                    </View>
-                    <View
-                    style={styles.horizontalLine}
-                    />
-                    <View>
-                        <TouchableOpacity style={styles.buttonContainers}
-                         onPress={this.submitForm}
-                        >
-                             <Text style={styles.buttonText}>Continue</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-           </ScrollView>
-           </ImageBackground>
+                       <TextInput
+                        onChangeText={(e)=> {this.setState({reasonForVisit:e.trim()})
+                       
+                        if(e){
+                         this.setState({
+                           errors:{
+                             reasonForVisit:''
+                           }
+                         })
+                       }
+                       
+                       }}
+                        placeholder="Reason for Visit"
+                        style={styles.inputstyle}
+                        value={reasonForVisit}
+                       />
+                         <Text style={styles.danger}>{this.state.errors.reasonForVisit}</Text>
+                   </View>
+                   <View
+                     style={styles.horizontalLine}
+                   />
+                   <View style={styles.inputContainer}>
+                      <Text style={styles.question} >Please provide your ID number.</Text>
+
+                       <TextInput
+                           onChangeText={(e)=>{ this.setState({IDNumber:e.trim()})
+                         
+                             if(e.length<13){
+                               const error="Characters need to be 13 characters";
+                               this.setState({
+                                errors:{
+                                 IDNumber:error
+                                }
+                               })
+                             }else{
+                               this.setState({
+                                 errors:{
+                                   IDNumber:''
+                                 }
+                                })
+                             }
+                         
+                            }}
+                           placeholder="ID"
+                           style={styles.inputstyle}
+                           value={IDNumber}
+                       />
+                      <Text style={styles.danger}>{this.state.errors.IDNumber}</Text>
+                   </View>
+                   <View
+                     style={styles.horizontalLine}
+                   />
+                   <View style={styles.inputContainer}>
+                      <Text style={styles.question} >Please provide your phone number.</Text>
+
+                       <TextInput
+                       onChangeText={(e)=> {this.setState({number:e.trim()})
+                         
+                           if(e.length<10){
+                             const error="Characters need to be 10 characters";
+                             this.setState({
+                              errors:{
+                                number:error
+                              }
+                             })
+                           }else{
+                             this.setState({
+                               errors:{
+                                 number:''
+                               }
+                              })
+                           }
+                         
+                         }}
+                        placeholder="Number"
+                       style={styles.inputstyle}
+                        value={number}
+                       />
+                       <Text style={styles.danger}>{this.state.errors.number}</Text>
+                   </View>
+                   <View
+                   style={styles.horizontalLine}
+                   />
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.question} >Have you been tested for COVID-19 in the past 10 days? If so, what was the outcome of your test?</Text>
+
+                       <TextInput
+                       onChangeText={(e)=>{ this.setState({tested:e.trim()})
+                     
+                       if(e){
+                         this.setState({
+                           errors:{
+                             tested:''
+                           }
+                         })
+                       }
+                     
+                       }}
+                        placeholder="Yes Or No"
+                       style={styles.inputstyle}
+                       value={tested}
+                    
+                       />
+                       <Text style={styles.danger}>{this.state.errors.tested}</Text>
+                   </View>
+                   <View
+                   style={styles.horizontalLine}
+                   />
+                   <View style={styles.inputContainer}>
+                      <Text style={styles.question} >What is your temperature?</Text>
+
+                       <TextInput
+                        onChangeText={(e)=> {this.setState({temperature:e.trim()})
+                       
+                        if(e){
+                         this.setState({
+                           errors:{
+                             temperature:''
+                           }
+                         })
+                       }
+                       
+                         }}
+                        placeholder="34.7"
+                        style={styles.inputstyle}
+                        value={temperature}
+                       />
+                       <Text style={styles.danger}>{this.state.errors.temperature}</Text>
+                   </View>
+                   <View
+                   style={styles.horizontalLine}
+                   />
+                   <View>
+                       <TouchableOpacity style={styles.buttonContainers}
+                        onPress={this.submitForm}
+                       >
+                            <Text style={styles.buttonText}>Continue</Text>
+                       </TouchableOpacity>
+                   </View>
+               </View>
+          </ScrollView>
+          </ImageBackground>
         )
     }
 }
@@ -453,6 +510,10 @@ const styles=StyleSheet.create({
       left:160,
       justifyContent:'center',
       alignItems:'center'
+    },
+    danger:{
+      color:'red',
+      marginTop:15
     }
 })
 

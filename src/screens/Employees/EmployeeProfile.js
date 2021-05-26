@@ -14,10 +14,10 @@ class EmployeeProfile extends Component{
 
     async componentDidMount(){
         const snapshot = await db.collection('Employee').get();
-        const data=[]
+        const data=[];
         snapshot.forEach((doc) => {
-          console.log(doc.id, '=>', doc.data());
-       
+          console.log(doc.id, '=>', doc.data())
+
           data.push({Data:doc.data(),id: doc.id })
           this.setState({
               users:[...data],

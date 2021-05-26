@@ -81,41 +81,6 @@ takePicture = async () => {
   if (this.camera) {
     const options = {quality: 1,base64: true };
     const data = await this.camera.takePictureAsync(options);
-    const result=data.base64;
-     const visitors=Vistors.map(item=>{
-        return item.Data.faceId[0]
-     })
-
-     const employee=Employees.map(item=>{
-       return item.Data.faceId[0]
-     })
-     
-      const faceId=faces.map(item=>{
-          return item.rollAngle
-      })
-
-    const visitorsData=Vistors.map(item=>{
-      return item;
-   })
-
-   const employeeData=Employees.map(item=>{
-    return item;
-   })
-   
-  //  if(faceId !== visitors || faceId !== visitors){
-  //    this.props.navigation.navigate('Questions')
-  //  }
-    if(faceId ===visitors ){
-    this.props.navigation.navigate('Vistor Detail',{
-         Data:[...visitorsData]
-    })
-   }else if(faceId === employee){
-    this.props.navigation.navigate('Employee Detail',{
-         Data:[...employeeData]
-    })
-   }
-    
-
   }
 }
 
@@ -169,6 +134,7 @@ render(){
 }
 
 export default ScanFaceButton;
+
 const styles=StyleSheet.create({
   container:{
     flex:1,
