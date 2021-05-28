@@ -33,10 +33,17 @@ class VisitorDetail extends Component{
           temperature:updatedTemperature,
           name:name
       })
+
+          await db.collection('Visitors').doc(id)
+          .update({
+            temperature:updatedTemperature
+          })
+
           this.setState({
             updatedTemperature:'',
             name:""
           })
+          
           Alert.alert(`Thank you ${this.state.name} your Temperature has been updated`)
 
     }

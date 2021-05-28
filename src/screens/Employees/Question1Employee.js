@@ -39,7 +39,7 @@ class Question1Employee extends Component{
 
      faceDetected=({faces})=>{
        this.setState({
-         faces:faces
+         faces:[...faces]
        })
      }
 
@@ -62,12 +62,13 @@ class Question1Employee extends Component{
       const blob =  await response.blob();
   
       const ref =storage.ref().child(`visitors/${x}`);
-      return ref.put(blob)
-      .then(storage=>{
-        this.setState({
-         imageUrl:storage.downloadURL
-        })
-      })   
+     return ref.put(blob)
+      // .then((snap)=>{
+      //   console.log(`${snap} uploaded succesfully`)
+      //   for (const property in snap) {
+      //     console.log(`${property}: ${snap[property]}`);
+      //   }
+      // })
     }
    
     takePicture = async () => {
@@ -84,9 +85,9 @@ class Question1Employee extends Component{
              isPreview:true
            })
         }
-    
       }
  }
+
 
   errors=(name,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature)=>{
      this.setState({
@@ -156,10 +157,9 @@ class Question1Employee extends Component{
 
     
 
-    render(){
-        const {imageUrl,name,hasPermission ,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
-        
-        console.log(imageUrl);
+    render(){        
+      const {name,hasPermission ,lastName,Department,reasonForVisit,IDNumber,number,tested,temperature}=this.state;
+
         if (hasPermission === null) {
           return <View />;
         }
@@ -174,7 +174,7 @@ class Question1Employee extends Component{
                  <View
                     style={styles.horizontalLine}
                     />
-                    <View style={styles.inputContainer}>
+                    {/* <View style={styles.inputContainer}>
                        <Text style={styles.question} >Scan Your Face</Text>
 
                        <Camera 
@@ -210,7 +210,7 @@ class Question1Employee extends Component{
                             </TouchableOpacity>
                             </View>
                         </Camera>
-                    </View>
+                    </View> */}
                     <View
                       style={styles.horizontalLine}
                     />

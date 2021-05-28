@@ -18,7 +18,6 @@ const Vistors=()=>{
   return(
     <Stack.Navigator headerMode="false">
         <Stack.Screen name="Log In" component={HomeScreen}/>
-        <Stack.Screen name="Questions" component={Question}/>
         <Stack.Screen name="COVID-19 Monitor Q1 V" component={Question1Vistor}/>
         <Stack.Screen name="COVID-19 Monitor Q1 E" component={Question1Employee}/>
         <Stack.Screen name="Profiles" component={Profile}/>

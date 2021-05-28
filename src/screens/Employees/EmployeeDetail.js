@@ -36,6 +36,11 @@ class EmployeeDetail extends Component{
             name:name
         })
 
+        await db.collection('Employee').doc(`${id}`)
+        .update({
+          temperature:updatedTemperature
+        })
+
           this.setState({
             updatedTemperature:'',
             name:""
@@ -47,7 +52,6 @@ class EmployeeDetail extends Component{
 
     render(){
         const {Data}=this.props.route.params;
-        console.log(Data)
         return(
           <ImageBackground source={require('../../image/Update-price.jpg')} style={{flex:1,justifyContent:'center',alignItems:'center'}}>
                <View style={{flexDirection:'row'}}>

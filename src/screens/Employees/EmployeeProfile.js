@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import {FlatList,TouchableOpacity,View,StyleSheet,Text,ActivityIndicator,TextInput} from 'react-native';
+import {FlatList,TouchableOpacity,View,StyleSheet,Text,ActivityIndicator,TextInput,ScrollView} from 'react-native';
 import {db} from '../../util/firebase';
 class EmployeeProfile extends Component{
     constructor(){
@@ -36,6 +36,7 @@ class EmployeeProfile extends Component{
     }
 
     render(){
+        console.log(this.state.users)
         if(this.state.isloading){
             return(
                 <View style={styles.flexContain}>
@@ -44,7 +45,7 @@ class EmployeeProfile extends Component{
             )
         }
         return(
-            <View>
+            <ScrollView>
               <View style={{justifyContent:'center',alignItems:'center',padding:20}}>
                     <TextInput
                       onChangeText={this.search}
@@ -76,7 +77,7 @@ class EmployeeProfile extends Component{
                         </TouchableOpacity>
                     )}
                     />
-         </View>
+         </ScrollView>
         )
     }
 }

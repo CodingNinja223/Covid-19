@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createMaterialTopTabNavigator,ScrollView } from '@react-navigation/material-top-tabs';
 import EmployeeProfile from '../Employees/EmployeeProfile';
 import VistorsProfile from '../Vistors/VistorsProfile';
 const Tab = createMaterialTopTabNavigator();

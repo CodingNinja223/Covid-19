@@ -5,6 +5,7 @@ import {db} from '../util/firebase'
 import * as FaceDetector from 'expo-face-detector'
 import { Entypo } from '@expo/vector-icons';
 
+
 class ScanFaceButton extends Component {
 constructor(){
   super()
@@ -16,7 +17,9 @@ constructor(){
     isCameraReady:false,
     faces:[],
     Vistors:[],
-    Employees:[]
+    Employees:[],
+    imageUrl:"",
+    sizes:''
   }
 }
 
@@ -64,30 +67,59 @@ async componentDidMount(){
 }
 
  recognize=async(x)=>{
-  const rawResponse = await fetch(`https://api.kairos.com/recognize`, {
+  const rawResponse = await fetch(`https://api.kairos.com/enroll`, {
     method: 'POST',
-    headers: HEADERS,
+    headers: {
+     'Content-Type': 'application/json',
+       'app_id':'c2634f29',
+       'app_key':'5a23f39461578bfa18eb85ccd59be7ec',
+       'store_image':  "true"
+     },
     body: JSON.stringify({
         "image": x,
+        "subject_id":"Samuel",
         "gallery_name": "MyGallery"
     })
   });
   const content = await rawResponse.json();
-  return content;
+  console.log(content)
  }
+
 
 takePicture = async () => {
   const {faces,Vistors,Employees}=this.state;
   if (this.camera) {
     const options = {quality: 1,base64: true };
-    const data = await this.camera.takePictureAsync(options);
+    const data = await this.camera.takePictureAsync(null);
+    const image=data.uri;
+
+    
+   
+  }
+
+  const employeeData=Employees.map(item=>{
+    return item.Data.faceId
+  })
+
+  const visitorData=Vistors.map(item=>{
+    return item.Data.faceId
+  })
+
+  const userFace=faces.map(item=>{
+    return item.faceID
+  })
+
+  if(userFace === visitorData[0]){
+    console.log('There is a match')
+  }else{
+    console.log('There is no match')
   }
 }
 
 
 render(){
   const {hasPermission,Vistors,Employees}=this.state;
-  console.log(this.state.faces);
+
   if (hasPermission === null) {
     return <View />;
 

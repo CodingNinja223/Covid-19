@@ -38,7 +38,7 @@ class Question extends Component{
 
      faceDetected=({faces})=>{
        this.setState({
-         faces:faces
+         faces:[...faces]
        })
      }
 
@@ -139,7 +139,7 @@ class Question extends Component{
                 tested:"",
                 temperature:"",
        })
-             this.props.navigation.navigate("Visitor Thanks");
+             this.props.navigation.navigate("Visitors Thanks");
 
        }
     
@@ -163,7 +163,7 @@ class Question extends Component{
                 <View
                    style={styles.horizontalLine}
                    />
-                   <View style={styles.inputContainer}>
+                   {/* <View style={styles.inputContainer}>
                       <Text style={styles.question} >Scan Your Face</Text>
 
                       <Camera 
@@ -199,7 +199,7 @@ class Question extends Component{
                            </TouchableOpacity>
                            </View>
                        </Camera>
-                   </View>
+                   </View> */}
                    <View
                      style={styles.horizontalLine}
                    />

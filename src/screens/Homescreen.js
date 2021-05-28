@@ -27,14 +27,13 @@ class HomeScreen extends Component{
                        </TouchableOpacity>
                        
                            <TouchableOpacity
-                           onPress={()=> this.props.navigation.navigate('COVID-19 Monitor Q1 E')}
+                             onPress={()=> this.props.navigation.navigate('COVID-19 Monitor Q1 E')}
                            >
                                <Image source={require('../image/Staff.png')} resizeMode="center" style={styles.imageIcon}/>
                                <Image source={require('../image/bar.png')}  resizeMode="center" style={{height:100}}/>
                                <View style={styles.iconspacing2}>
                                   <Text style={styles.textIconFontSize}>Staff</Text>
                                </View>
-                               
                            </TouchableOpacity>
 
                            <TouchableOpacity 
@@ -47,16 +46,16 @@ class HomeScreen extends Component{
                                </View>
                               
                            </TouchableOpacity>
-                           <TouchableOpacity  
-                           onPress={()=> this.props.navigation.navigate('Scan Face')}
-                           >
-                               <MaterialIcons name="qr-code-scanner" size={35} color="black" style={styles.icon4}  />
-                             <Image source={require('../image/bar.png')}  resizeMode="center" style={{height:100}}/>
-                               <View style={styles.iconspacing4}>
-                                  <Text style={styles.textIconFontSize}>Scan Face</Text>
-                               </View>
-                               
-                           </TouchableOpacity>
+                        {/*<TouchableOpacity  
+                        onPress={()=> this.props.navigation.navigate('Scan Face')}
+                        >
+                            <MaterialIcons name="qr-code-scanner" size={35} color="black" style={styles.icon4}  />
+                            <Image source={require('../image/bar.png')}  resizeMode="center" style={{height:100}}/>
+                            <View style={styles.iconspacing4}>
+                                <Text style={styles.textIconFontSize}>Scan Face</Text>
+                            </View>
+                            
+                        </TouchableOpacity>*/}
                    </View>
                    </View>
            </ImageBackground>

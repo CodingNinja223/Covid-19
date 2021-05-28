@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import {FlatList,TouchableOpacity,View,StyleSheet,Text,ActivityIndicator,TextInput} from 'react-native';
+import {FlatList,TouchableOpacity,View,StyleSheet,Text,ActivityIndicator,TextInput,ScrollView} from 'react-native';
 import {db} from '../../util/firebase';
 class VistorProfile extends Component{
     constructor(){
@@ -44,7 +44,7 @@ class VistorProfile extends Component{
             )
         }
         return(
-            <View>
+            <ScrollView>
                 <View style={{justifyContent:'center',alignItems:'center',padding:20}}>
                     <TextInput
                       onChangeText={this.search}
@@ -77,7 +77,7 @@ class VistorProfile extends Component{
                 
                 )}
                 />
-          </View>
+          </ScrollView>
         )
     }
 }
